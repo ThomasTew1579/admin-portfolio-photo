@@ -1,13 +1,13 @@
-import MenuItems from "./components/MenuItems"
 import SideMenu from "./components/SideMenu"
-import CategoryMenu from "./components/CategoryMenu"
+import TopMenu from "./components/TopMenu"
 
 function Admin() {
 
   return (
     <>
-      <SideMenu>
-      </SideMenu>
+      <SideMenu/>
+      <TopMenu/>
+
 
   
     </>
