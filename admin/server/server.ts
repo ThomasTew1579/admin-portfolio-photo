@@ -59,6 +59,20 @@ function writeJson(file: string, data: JsonValue) {
   fs.renameSync(tmp, file);
 }
 
+export function getPhotosByAlbum(albumId: string): GalleryItem[] {
+  const id = String(albumId).trim();
+  if (!id) return [];
+  const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
+  return gallery.filter(g => g.albumId === id);
+}
+
+export function getPhotosByTag(tagId: string): GalleryItem[] {
+  const id = String(tagId).trim();
+  if (!id) return [];
+  const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
+  return gallery.filter(g => g.tagId === id); // ⚠️ TagId (majuscule)
+}
+
 // PATCH /api/photos/:id
 // body possible: { filenameBase?, year?, month?, day?, albumId?, tagId? }
 app.patch('/api/photos/:id', (req, res) => {
@@ -404,6 +418,28 @@ app.post("/api/tags", (req, res) => {
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     return res.status(500).send(msg || "Server error");
+  }
+});
+
+// GET /api/albums/:albumId/photos
+app.get("/api/albums/:albumId/photos", (req, res) => {
+  try {
+    const items = getPhotosByAlbum(String(req.params.albumId));
+    res.json(items);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || "Server error");
+  }
+});
+
+// GET /api/tags/:tagId/photos
+app.get("/api/tags/:tagId/photos", (req, res) => {
+  try {
+    const items = getPhotosByTag(String(req.params.tagId));
+    res.json(items);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || "Server error");
   }
 });
 
