@@ -12,7 +12,7 @@ type FormState = {
   month: number;
   day: number;
   albumId: string;
-  tagId: string; // respecte ta casse dans gallery.json
+  tagId: string;
 };
 
 export default function PhotoUploadForm() {
@@ -31,7 +31,6 @@ export default function PhotoUploadForm() {
   });
 
   useEffect(() => {
-    // Récupère depuis l'API (le serveur lit src/assets/album.json et tag.json)
     (async () => {
       const [a, t] = await Promise.all([
         fetch('/api/albums').then((r) => r.json()),
@@ -39,7 +38,6 @@ export default function PhotoUploadForm() {
       ]);
       setAlbums(a);
       setTags(t);
-      // Pré-sélection : premier élément si dispo
       setForm((prev) => ({
         ...prev,
         albumId: a?.[0]?.albumId ?? '',
@@ -104,7 +102,7 @@ export default function PhotoUploadForm() {
     fd.append('month', String(form.month));
     fd.append('day', String(form.day));
     fd.append('albumId', form.albumId);
-    fd.append('tagId', form.tagId); // 👈 même clé/casse que ton JSON
+    fd.append('tagId', form.tagId);
 
     const res = await fetch('/api/photos', { method: 'POST', body: fd });
     const data = await res.json().catch(() => null);
@@ -170,7 +168,6 @@ export default function PhotoUploadForm() {
         </div>
       </div>
 
-      {/* Select Album */}
       <div>
         <label className="block text-sm mb-1">Album</label>
         <select
@@ -186,7 +183,6 @@ export default function PhotoUploadForm() {
         </select>
       </div>
 
-      {/* Select Tag */}
       <div>
         <label className="block text-sm mb-1">Tag</label>
         <select
