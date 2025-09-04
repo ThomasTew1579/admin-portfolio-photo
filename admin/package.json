@@ -6,6 +6,7 @@
   "homepage": "https://ThomasTew1579.github.io/admin-portfolio-photo",
   "scripts": {
     "dev": "vite",
+    "dev:api": "ts-node-dev --respawn server/server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
