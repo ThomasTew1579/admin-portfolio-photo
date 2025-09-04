@@ -13,7 +13,7 @@ function Icon({ name, size = 24, className }: IconProps) {
             height={size}
             aria-hidden="true"
         >
-            <use href={`/far.svg#${name}`} />
+            <use href={`sprite/far.svg#${name}`} />
         </svg>
     )
 }
