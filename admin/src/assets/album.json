@@ -8,5 +8,10 @@
     "name": "Skate HDV",
     "desc": "photo de skate a HDV Lyon",
     "albumId": "24eeb19a-5f2b-455f-8e42-6f4848019d89"
+  },
+  {
+    "name": "Test",
+    "desc": "album vide",
+    "albumId": "24eeb19a-zerr-455f-8e42-6f4848019d89"
   }
 ]
