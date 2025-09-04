@@ -1,6 +1,5 @@
-// src/hooks/useAlbumsTags.ts
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type Album, type Tag, getAlbumsAndTags } from "../helpers/catalog";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type Album, type Tag, getAlbumsAndTags } from '../helpers/catalog';
 
 type State = {
   albums: Album[];
@@ -23,14 +22,14 @@ export function useAlbumsTags() {
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
-    setState(s => ({ ...s, loading: true, error: null }));
+    setState((s) => ({ ...s, loading: true, error: null }));
 
     try {
       const { albums, tags } = await getAlbumsAndTags(ac.signal);
       setState({ albums, tags, loading: false, error: null });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setState(s => ({ ...s, loading: false, error: msg }));
+      setState((s) => ({ ...s, loading: false, error: msg }));
     }
   }, []);
 
