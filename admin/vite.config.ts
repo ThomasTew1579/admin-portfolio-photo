@@ -9,5 +9,10 @@ export default defineConfig({
     react(), 
     tailwindcss()
   ],
-  base: '/admin-portfolio-photo/'
+  base: '/admin-portfolio-photo/',
+  server: {
+    proxy: {
+      "/api": "http://localhost:3001",
+    },
+  }
 })
