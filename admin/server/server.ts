@@ -11,7 +11,7 @@ app.use(express.json());
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [k: string]: JsonValue };
-type Album = { name: string; desc?: string; albumId: string; tagId: string };
+type Album = { name: string; desc?: string; albumId: string };
 type GalleryItem = {
   filename: string;
   path: string;
@@ -20,14 +20,27 @@ type GalleryItem = {
   month: number;
   day: number;
   albumId: string;
-  TagId: string;
+  tagId: string;
   id: string;
 };
+type Tag = { name: string; desc?: string; tagId: string };
 
 const PUBLIC_GALLERY_DIR = path.resolve(process.cwd(), 'public', 'gallery');
 const GALLERY_JSON = path.resolve(process.cwd(), 'src', 'assets', 'gallery.json');
 const ALBUM_JSON = path.resolve(process.cwd(), 'src', 'assets', 'album.json');
 const TAG_JSON = path.resolve(process.cwd(), 'src', 'assets', 'tag.json');
+
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+const absFromGalleryRel = (relPath: string) => {
+  const file = path.basename(relPath);
+  return path.join(PUBLIC_GALLERY_DIR, file);
+};
 
 fs.mkdirSync(PUBLIC_GALLERY_DIR, { recursive: true });
 
@@ -39,11 +52,280 @@ function readJson<T>(file: string, fallback: T): T {
     return fallback;
   }
 }
+
 function writeJson(file: string, data: JsonValue) {
   const tmp = `${file}.tmp`;
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf-8');
   fs.renameSync(tmp, file);
 }
+
+// PATCH /api/photos/:id
+// body possible: { filenameBase?, year?, month?, day?, albumId?, tagId? }
+app.patch('/api/photos/:id', (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
+    const idx = gallery.findIndex((g) => g.id === id);
+    if (idx === -1) return res.status(404).send('photo-not-found');
+
+    const current = gallery[idx];
+    const updated: GalleryItem = { ...current };
+
+    const filenameBase =
+      typeof req.body.filenameBase === 'string' ? req.body.filenameBase.trim() : '';
+    if (filenameBase) {
+      const ext = path.extname(current.filename) || '.jpg';
+      const nextFilename = `${slug(filenameBase)}${ext}`;
+      const nextPathRel = `./gallery/${nextFilename}`;
+
+      const duplicate = gallery.some(
+        (g) => (g.filename === nextFilename || g.path === nextPathRel) && g.id !== id
+      );
+      if (duplicate) return res.status(409).json({ ok: false, reason: 'duplicate-name' });
+
+      const oldAbs = absFromGalleryRel(current.path);
+      const nextAbs = path.join(PUBLIC_GALLERY_DIR, nextFilename);
+      fs.renameSync(oldAbs, nextAbs);
+
+      if (current.thumbnailPath) {
+        const oldThumbAbs = absFromGalleryRel(current.thumbnailPath);
+        const nextThumbFilename = `${slug(filenameBase)}-thumb${path.extname(current.thumbnailPath) || '.jpg'}`;
+        const nextThumbAbs = path.join(PUBLIC_GALLERY_DIR, nextThumbFilename);
+        try {
+          fs.renameSync(oldThumbAbs, nextThumbAbs);
+          updated.thumbnailPath = `./gallery/${nextThumbFilename}`;
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          res.status(500).send(msg);
+        }
+      }
+
+      updated.filename = nextFilename;
+      updated.path = nextPathRel;
+    }
+
+    const toInt = (v: unknown) => Number.parseInt(String(v ?? ''), 10);
+    if (req.body.year != null) updated.year = toInt(req.body.year) || updated.year;
+    if (req.body.month != null) updated.month = toInt(req.body.month) || updated.month;
+    if (req.body.day != null) updated.day = toInt(req.body.day) || updated.day;
+
+    if (req.body.albumId !== undefined) {
+      const albumId = String(req.body.albumId).trim();
+      if (albumId) {
+        const albums = readJson<Album[]>(ALBUM_JSON, [] as Album[]);
+        if (!albums.some((a) => a.albumId === albumId)) {
+          return res.status(400).json({ ok: false, reason: 'unknown-albumId' });
+        }
+        updated.albumId = albumId;
+      } else {
+        updated.albumId = '';
+      }
+    }
+
+    // 4) Tag
+    if (req.body.tagId !== undefined) {
+      const tagId = String(req.body.tagId).trim();
+      if (tagId) {
+        const tags = readJson<Tag[]>(TAG_JSON, [] as Tag[]);
+        if (!tags.some((t) => t.tagId === tagId)) {
+          return res.status(400).json({ ok: false, reason: 'unknown-tagId' });
+        }
+        updated.tagId = tagId;
+      } else {
+        updated.tagId = '';
+      }
+    }
+
+    // Persist
+    gallery[idx] = updated;
+    writeJson(GALLERY_JSON, gallery);
+    res.json({ ok: true, entry: updated });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || 'Server error');
+  }
+});
+
+// PATCH /api/albums/:albumId
+// body: { name?, desc?, replaceId? }  (replaceId pour migrer toutes les photos)
+app.patch('/api/albums/:albumId', (req, res) => {
+  try {
+    const albumId = String(req.params.albumId).trim();
+    const albums = readJson<Album[]>(ALBUM_JSON, [] as Album[]);
+    const i = albums.findIndex((a) => a.albumId === albumId);
+    if (i === -1) return res.status(404).send('album-not-found');
+
+    const body = req.body ?? {};
+    const replaceId = body.replaceId ? String(body.replaceId).trim() : '';
+
+    if (typeof body.name === 'string') albums[i].name = body.name;
+    if (typeof body.desc === 'string' || body.desc === null)
+      albums[i].desc = body.desc ?? undefined;
+
+    if (replaceId && replaceId !== albumId) {
+      if (albums.some((a) => a.albumId === replaceId)) {
+        return res.status(409).json({ ok: false, reason: 'albumId-already-exists' });
+      }
+      albums[i].albumId = replaceId;
+
+      const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
+      let affected = 0;
+      for (const g of gallery) {
+        if (g.albumId === albumId) {
+          g.albumId = replaceId;
+          affected++;
+        }
+      }
+      writeJson(GALLERY_JSON, gallery);
+      writeJson(ALBUM_JSON, albums);
+      return res.json({ ok: true, album: albums[i], migratedPhotos: affected });
+    }
+
+    writeJson(ALBUM_JSON, albums);
+    res.json({ ok: true, album: albums[i] });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || 'Server error');
+  }
+});
+
+// DELETE /api/albums/:albumId
+// Effet: supprime l'album.json ciblé + met albumId="" dans toutes les photos liées
+app.delete('/api/albums/:albumId', (req, res) => {
+  try {
+    const albumId = String(req.params.albumId).trim();
+
+    const albums = readJson<Album[]>(ALBUM_JSON, [] as Album[]);
+    const exists = albums.some((a) => a.albumId === albumId);
+    if (!exists) return res.status(404).send('album-not-found');
+
+    const kept = albums.filter((a) => a.albumId !== albumId);
+    writeJson(ALBUM_JSON, kept);
+
+    const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
+    let affected = 0;
+    for (const g of gallery) {
+      if (g.albumId === albumId) {
+        g.albumId = '';
+        affected++;
+      }
+    }
+    writeJson(GALLERY_JSON, gallery);
+
+    res.json({ ok: true, removedAlbumId: albumId, unlinkedPhotos: affected });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || 'Server error');
+  }
+});
+
+// PATCH /api/tags/:tagId
+// body: { name?, desc?, replaceId? }
+app.patch('/api/tags/:tagId', (req, res) => {
+  try {
+    const tagId = String(req.params.tagId).trim();
+    const tags = readJson<Tag[]>(TAG_JSON, [] as Tag[]);
+    const i = tags.findIndex((t) => t.tagId === tagId);
+    if (i === -1) return res.status(404).send('tag-not-found');
+
+    const body = req.body ?? {};
+    const replaceId = body.replaceId ? String(body.replaceId).trim() : '';
+
+    if (typeof body.name === 'string') tags[i].name = body.name;
+    if (typeof body.desc === 'string' || body.desc === null) tags[i].desc = body.desc ?? undefined;
+
+    if (replaceId && replaceId !== tagId) {
+      if (tags.some((t) => t.tagId === replaceId)) {
+        return res.status(409).json({ ok: false, reason: 'tagId-already-exists' });
+      }
+      tags[i].tagId = replaceId;
+
+      const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
+      let affected = 0;
+      for (const g of gallery) {
+        if (g.tagId === tagId) {
+          g.tagId = replaceId;
+          affected++;
+        }
+      }
+      writeJson(GALLERY_JSON, gallery);
+      writeJson(TAG_JSON, tags);
+      return res.json({ ok: true, tag: tags[i], migratedPhotos: affected });
+    }
+
+    writeJson(TAG_JSON, tags);
+    res.json({ ok: true, tag: tags[i] });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || 'Server error');
+  }
+});
+
+// DELETE /api/tags/:tagId
+// Effet: supprime le tag + met TagId="" dans les photos liées
+app.delete('/api/tags/:tagId', (req, res) => {
+  try {
+    const tagId = String(req.params.tagId).trim();
+
+    const tags = readJson<Tag[]>(TAG_JSON, [] as Tag[]);
+    const exists = tags.some((t) => t.tagId === tagId);
+    if (!exists) return res.status(404).send('tag-not-found');
+
+    const kept = tags.filter((t) => t.tagId !== tagId);
+    writeJson(TAG_JSON, kept);
+
+    const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
+    let affected = 0;
+    for (const g of gallery) {
+      if (g.tagId === tagId) {
+        g.tagId = ''; // délier
+        affected++;
+      }
+    }
+    writeJson(GALLERY_JSON, gallery);
+
+    res.json({ ok: true, removedTagId: tagId, unlinkedPhotos: affected });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || 'Server error');
+  }
+});
+
+// DELETE /api/photos/:id
+app.delete('/api/photos/:id', (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
+    const idx = gallery.findIndex((g) => g.id === id);
+    if (idx === -1) return res.status(404).send('photo-not-found');
+
+    const item = gallery[idx];
+
+    try {
+      fs.unlinkSync(absFromGalleryRel(item.path));
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      res.status(500).send(msg);
+    }
+
+    if (item.thumbnailPath) {
+      try {
+        fs.unlinkSync(absFromGalleryRel(item.thumbnailPath));
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        res.status(500).send(msg);
+      }
+    }
+
+    gallery.splice(idx, 1);
+    writeJson(GALLERY_JSON, gallery);
+
+    res.json({ ok: true, removedId: id });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || 'Server error');
+  }
+});
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, PUBLIC_GALLERY_DIR),
@@ -70,11 +352,11 @@ app.get('/api/albums', (_req, res) => {
 });
 
 app.get('/api/tags', (_req, res) => {
-  const tags = readJson<Album[]>(TAG_JSON, []);
+  const tags = readJson<Tag[]>(TAG_JSON, []);
   const norm = tags.map((t) => ({
     name: t.name,
     desc: t.desc,
-    tagId: t.tagId ?? t.albumId,
+    tagId: t.tagId,
   }));
   res.json(norm);
 });
@@ -91,17 +373,17 @@ app.post('/api/photos', upload.single('photo'), (req, res) => {
     const tagId = String(req.body.tagId || '');
 
     const albums = readJson<Album[]>(ALBUM_JSON, []);
-    const tags = readJson<Album[]>(TAG_JSON, []);
+    const tags = readJson<Tag[]>(TAG_JSON, []);
     const albumExists = albums.some((a) => a.albumId === albumId);
     const tagExists = tags.some((t) => t.tagId === tagId);
 
     if (!albumExists) {
       fs.unlinkSync(req.file.path);
-      return res.status(400).json({ ok: false, reason: 'unknown-albumId' });
+      return res.status(400).json({ ok: false, reason: 'unknown-album-id' });
     }
     if (!tagExists) {
       fs.unlinkSync(req.file.path);
-      return res.status(400).json({ ok: false, reason: 'unknown-TagId' });
+      return res.status(400).json({ ok: false, reason: 'unknown-tag-id' });
     }
 
     const entry = {
@@ -112,7 +394,7 @@ app.post('/api/photos', upload.single('photo'), (req, res) => {
       month,
       day,
       albumId,
-      TagId: tagId,
+      tagId: tagId,
       id: uuidv4(),
     };
 
