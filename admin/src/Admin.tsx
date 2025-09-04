@@ -4,6 +4,7 @@ import SideMenu from './components/SideMenu';
 import TopMenu from './components/TopMenu';
 import PhotoLibrary from './pages/PhotoLibrary';
 import PhotoUploadForm from './pages/PhotoUploadForm';
+import Albums from './pages/Albums';
 import { useState } from 'react';
 
 type ViewportConfig = { grid: number; objectFit: boolean };
@@ -38,6 +39,7 @@ function Admin() {
             }
           />
           <Route path="/upload" element={<PhotoUploadForm />} />
+          <Route path="/albums" element={<Albums />} />
         </Routes>
       </div>
     </>
