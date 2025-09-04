@@ -1,15 +1,13 @@
+// type PhotoDetailProps = {
+//     id: number
+// }
 
+// function PhotoDetail({id}: PhotoDetailProps) {
+//     return (
+//         <div>
 
-type PhotoDetailProps = {
-    id: number
-}
+//         </div>
+//     )
+// }
 
-function PhotoDetail({id}: PhotoDetailProps) {
-    return (
-        <div>
-            
-        </div>
-    )
-}
-
-export default PhotoDetail
+// export default PhotoDetail

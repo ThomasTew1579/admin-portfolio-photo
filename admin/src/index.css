@@ -1,23 +1,17 @@
-@import "tailwindcss";
-@import "./assets/form.css"; 
-
+@import 'tailwindcss';
+@import './assets/form.css';
 
 @theme {
+  --color-primary: oklch(0.61 0.2 255.81);
 
-  --color-primary:oklch(0.61 0.2 255.81);
-  
-  --color-gray-100 :oklch(0.61 0 0);
-  --color-gray-200 :oklch(0.51 0 0);
-  --color-gray-300 :oklch(0.41 0 0);
-  --color-gray-500 :oklch(0.32 0 0);
-  --color-gray-600 :oklch(0.30 0 0);
-  --color-gray-700 :oklch(0.26 0 0);
-  --color-gray-800 :oklch(0.23 0 0);
+  --color-gray-100: oklch(0.61 0 0);
+  --color-gray-200: oklch(0.51 0 0);
+  --color-gray-300: oklch(0.41 0 0);
+  --color-gray-500: oklch(0.32 0 0);
+  --color-gray-600: oklch(0.3 0 0);
+  --color-gray-700: oklch(0.26 0 0);
+  --color-gray-800: oklch(0.23 0 0);
 
-  --spacing-sidebar:190px;
-  --spacing-topbar:48px;
-
+  --spacing-sidebar: 190px;
+  --spacing-topbar: 48px;
 }
-
-
-
