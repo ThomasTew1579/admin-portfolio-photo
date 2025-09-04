@@ -8,14 +8,11 @@ type MenuItemProps = {
   onClick?: () => void;
 };
 
-
-function SubMenuItems({title, icon = 'images', href, onClick }: MenuItemProps) {
+function SubMenuItems({ title, icon = 'images', href, onClick }: MenuItemProps) {
   const baseClass =
     'block px-3 pl-8.5 py-1.5 text-sm font-medium w-full text-start rounded-md text-white ';
   const inactiveClass = 'opacity-90';
   const activeClass = 'bg-gray-300/60';
-
-
 
   if (href) {
     const isExternal = /^https?:\/\//.test(href);
@@ -30,8 +27,8 @@ function SubMenuItems({title, icon = 'images', href, onClick }: MenuItemProps) {
       );
     }
 
-  const linkClassName: NavLinkProps['className'] = ({ isActive }) =>
-    baseClass + (isActive ? activeClass : inactiveClass);
+    const linkClassName: NavLinkProps['className'] = ({ isActive }) =>
+      baseClass + (isActive ? activeClass : inactiveClass);
 
     return (
       <li className="list-none relative">
