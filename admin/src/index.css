@@ -7,6 +7,8 @@
   --color-gray-100: oklch(0.61 0 0);
   --color-gray-200: oklch(0.51 0 0);
   --color-gray-300: oklch(0.41 0 0);
+  --color-gray-350: oklch(0.39 0.01 292);
+  --color-gray-400: oklch(0.35 0.01 292);
   --color-gray-500: oklch(0.32 0 0);
   --color-gray-600: oklch(0.3 0 0);
   --color-gray-700: oklch(0.26 0 0);
