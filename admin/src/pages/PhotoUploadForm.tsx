@@ -1,89 +1,119 @@
-import { useState } from "react";
-import * as exifr from "exifr";
+import { useEffect, useState } from 'react';
+import * as exifr from 'exifr';
+
+type Album = { name: string; desc?: string; albumId: string };
+type Tag = { name: string; desc?: string; tagId: string };
 
 type FormState = {
-  filename: string;
-  date: string;      // "YYYY-MM-DD"
   file: File | null;
   previewUrl?: string;
+  filename: string;
+  year: number;
+  month: number;
+  day: number;
+  albumId: string;
+  tagId: string; // respecte ta casse dans gallery.json
 };
 
 export default function PhotoUploadForm() {
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [status, setStatus] = useState<string | null>(null);
+
   const [form, setForm] = useState<FormState>({
-    filename: "",
-    date: "",
     file: null,
+    filename: '',
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    day: new Date().getDate(),
+    albumId: '',
+    tagId: '',
   });
-  const [status, setStatus] = useState<null | string>(null);
+
+  useEffect(() => {
+    // Récupère depuis l'API (le serveur lit src/assets/album.json et tag.json)
+    (async () => {
+      const [a, t] = await Promise.all([
+        fetch('/api/albums').then((r) => r.json()),
+        fetch('/api/tags').then((r) => r.json()),
+      ]);
+      setAlbums(a);
+      setTags(t);
+      // Pré-sélection : premier élément si dispo
+      setForm((prev) => ({
+        ...prev,
+        albumId: a?.[0]?.albumId ?? '',
+        tagId: t?.[0]?.tagId ?? '',
+      }));
+    })();
+  }, []);
+
+  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
 
   async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Préremplissage : filename (sans extension) + date EXIF si dispo
-    const base = file.name.replace(/\.[^.]+$/, "");
-    let dateStr = "";
+    const base = file.name.replace(/\.[^.]+$/, '');
+    let y = form.year,
+      m = form.month,
+      d = form.day;
 
     try {
-      // EXIF : surtout présent sur JPEG/HEIC. WebP en a rarement.
       const meta = await exifr.parse(file).catch(() => null);
       const exifDate: Date | undefined =
         (meta?.DateTimeOriginal as Date) ||
         (meta?.CreateDate as Date) ||
         (meta?.ModifyDate as Date);
-
-      if (exifDate instanceof Date && !isNaN(+exifDate)) {
-        dateStr = exifDate.toISOString().slice(0, 10);
-      } else {
-        // fallback: dernière modif du fichier
-        dateStr = new Date(file.lastModified).toISOString().slice(0, 10);
-      }
+      const dt =
+        exifDate instanceof Date && !isNaN(+exifDate) ? exifDate : new Date(file.lastModified);
+      y = dt.getFullYear();
+      m = dt.getMonth() + 1;
+      d = dt.getDate();
     } catch {
-      dateStr = new Date(file.lastModified).toISOString().slice(0, 10);
+      const dt = new Date(file.lastModified);
+      y = dt.getFullYear();
+      m = dt.getMonth() + 1;
+      d = dt.getDate();
     }
 
-    const previewUrl = URL.createObjectURL(file);
-
-    setForm({
-      filename: base,
-      date: dateStr,
+    setForm((prev) => ({
+      ...prev,
       file,
-      previewUrl,
-    });
-  }
-
-  function onChange<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm(prev => ({ ...prev, [key]: value }));
+      previewUrl: URL.createObjectURL(file),
+      filename: base,
+      year: y,
+      month: m,
+      day: d,
+    }));
   }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.file) {
-      setStatus("Please select a photo first.");
+      setStatus('Please choose a photo first.');
       return;
     }
+    setStatus('Uploading…');
 
-    setStatus("Uploading…");
     const fd = new FormData();
-    fd.append("photo", form.file);
-    fd.append("filename", form.filename);
-    fd.append("date", form.date);
+    fd.append('photo', form.file);
+    fd.append('filename', form.filename);
+    fd.append('year', String(form.year));
+    fd.append('month', String(form.month));
+    fd.append('day', String(form.day));
+    fd.append('albumId', form.albumId);
+    fd.append('tagId', form.tagId); // 👈 même clé/casse que ton JSON
 
-    const res = await fetch("/api/photos", {
-      method: "POST",
-      body: fd,
-    });
+    const res = await fetch('/api/photos', { method: 'POST', body: fd });
+    const data = await res.json().catch(() => null);
 
     if (!res.ok) {
-      const msg = await res.text();
-      setStatus(`Upload failed: ${msg}`);
+      setStatus(`Upload failed: ${data?.reason ?? res.statusText}`);
       return;
     }
-
-    const data = await res.json();
-    setStatus(`Saved ✓ (${data.entry.path})`);
-    // option: reset le form
-    // setForm({ filename: "", date: "", file: null });
+    setStatus(`Saved ✓ ${data?.entry?.path ?? ''}`);
   }
 
   return (
@@ -94,11 +124,7 @@ export default function PhotoUploadForm() {
       </div>
 
       {form.previewUrl && (
-        <img
-          src={form.previewUrl}
-          alt="preview"
-          style={{ maxWidth: 240, borderRadius: 8 }}
-        />
+        <img src={form.previewUrl} alt="preview" style={{ maxWidth: 240, borderRadius: 8 }} />
       )}
 
       <div>
@@ -106,19 +132,74 @@ export default function PhotoUploadForm() {
         <input
           className="border px-2 py-1 rounded w-full"
           value={form.filename}
-          onChange={e => onChange("filename", e.target.value)}
-          placeholder="my-awesome-photo"
+          onChange={(e) => set('filename', e.target.value)}
         />
       </div>
 
+      <div className="flex gap-3">
+        <div>
+          <label className="block text-sm mb-1">Year</label>
+          <input
+            type="number"
+            className="border px-2 py-1 rounded w-24"
+            value={form.year}
+            onChange={(e) => set('year', Number(e.target.value))}
+          />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Month</label>
+          <input
+            type="number"
+            className="border px-2 py-1 rounded w-20"
+            min={1}
+            max={12}
+            value={form.month}
+            onChange={(e) => set('month', Number(e.target.value))}
+          />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Day</label>
+          <input
+            type="number"
+            className="border px-2 py-1 rounded w-20"
+            min={1}
+            max={31}
+            value={form.day}
+            onChange={(e) => set('day', Number(e.target.value))}
+          />
+        </div>
+      </div>
+
+      {/* Select Album */}
       <div>
-        <label className="block text-sm mb-1">Date</label>
-        <input
-          type="date"
+        <label className="block text-sm mb-1">Album</label>
+        <select
           className="border px-2 py-1 rounded"
-          value={form.date}
-          onChange={e => onChange("date", e.target.value)}
-        />
+          value={form.albumId}
+          onChange={(e) => set('albumId', e.target.value)}
+        >
+          {albums.map((a) => (
+            <option key={a.albumId} value={a.albumId}>
+              {a.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Select Tag */}
+      <div>
+        <label className="block text-sm mb-1">Tag</label>
+        <select
+          className="border px-2 py-1 rounded"
+          value={form.tagId}
+          onChange={(e) => set('tagId', e.target.value)}
+        >
+          {tags.map((t) => (
+            <option key={t.tagId} value={t.tagId}>
+              {t.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <button type="submit" className="px-3 py-2 rounded bg-blue-600 text-white">
