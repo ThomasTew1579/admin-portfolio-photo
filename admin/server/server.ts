@@ -63,14 +63,14 @@ export function getPhotosByAlbum(albumId: string): GalleryItem[] {
   const id = String(albumId).trim();
   if (!id) return [];
   const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
-  return gallery.filter(g => g.albumId === id);
+  return gallery.filter((g) => g.albumId === id);
 }
 
 export function getPhotosByTag(tagId: string): GalleryItem[] {
   const id = String(tagId).trim();
   if (!id) return [];
   const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
-  return gallery.filter(g => g.tagId === id); // ⚠️ TagId (majuscule)
+  return gallery.filter((g) => g.tagId === id); 
 }
 
 // PATCH /api/photos/:id
@@ -292,7 +292,7 @@ app.delete('/api/tags/:tagId', (req, res) => {
     let affected = 0;
     for (const g of gallery) {
       if (g.tagId === tagId) {
-        g.tagId = ''; // délier
+        g.tagId = '';
         affected++;
       }
     }
@@ -343,29 +343,29 @@ app.delete('/api/photos/:id', (req, res) => {
 
 // POST /api/albums
 // body: { name: string; desc?: string; albumId?: string }
-app.post("/api/albums", (req, res) => {
+app.post('/api/albums', (req, res) => {
   try {
     const nameRaw = req.body?.name;
     const descRaw = req.body?.desc;
-    let albumId: string = String(req.body?.albumId ?? "").trim();
+    let albumId: string = String(req.body?.albumId ?? '').trim();
 
-    const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
-    const desc = typeof descRaw === "string" ? descRaw : undefined;
+    const name = typeof nameRaw === 'string' ? nameRaw.trim() : '';
+    const desc = typeof descRaw === 'string' ? descRaw : undefined;
 
     if (!name) {
-      return res.status(400).json({ ok: false, reason: "name-required" });
+      return res.status(400).json({ ok: false, reason: 'name-required' });
     }
 
     const albums = readJson<Album[]>(ALBUM_JSON, [] as Album[]);
 
-    if (albumId && albums.some(a => a.albumId === albumId)) {
-      return res.status(409).json({ ok: false, reason: "albumId-exists" });
+    if (albumId && albums.some((a) => a.albumId === albumId)) {
+      return res.status(409).json({ ok: false, reason: 'albumId-exists' });
     }
 
     const sameName = (a: Album) =>
-      a.name.localeCompare(name, undefined, { sensitivity: "accent" }) === 0;
+      a.name.localeCompare(name, undefined, { sensitivity: 'accent' }) === 0;
     if (albums.some(sameName)) {
-      return res.status(409).json({ ok: false, reason: "album-name-exists" });
+      return res.status(409).json({ ok: false, reason: 'album-name-exists' });
     }
 
     if (!albumId) albumId = uuidv4();
@@ -377,35 +377,35 @@ app.post("/api/albums", (req, res) => {
     return res.status(201).json({ ok: true, album });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    return res.status(500).send(msg || "Server error");
+    return res.status(500).send(msg || 'Server error');
   }
 });
 
 // POST /api/tags
 // body: { name: string; desc?: string; tagId?: string }
-app.post("/api/tags", (req, res) => {
+app.post('/api/tags', (req, res) => {
   try {
     const nameRaw = req.body?.name;
     const descRaw = req.body?.desc;
-    let tagId: string = String(req.body?.tagId ?? "").trim();
+    let tagId: string = String(req.body?.tagId ?? '').trim();
 
-    const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
-    const desc = typeof descRaw === "string" ? descRaw : undefined;
+    const name = typeof nameRaw === 'string' ? nameRaw.trim() : '';
+    const desc = typeof descRaw === 'string' ? descRaw : undefined;
 
     if (!name) {
-      return res.status(400).json({ ok: false, reason: "name-required" });
+      return res.status(400).json({ ok: false, reason: 'name-required' });
     }
 
     const tags = readJson<Tag[]>(TAG_JSON, [] as Tag[]);
 
-    if (tagId && tags.some(t => t.tagId === tagId)) {
-      return res.status(409).json({ ok: false, reason: "tagId-exists" });
+    if (tagId && tags.some((t) => t.tagId === tagId)) {
+      return res.status(409).json({ ok: false, reason: 'tagId-exists' });
     }
 
     const sameName = (t: Tag) =>
-      t.name.localeCompare(name, undefined, { sensitivity: "accent" }) === 0;
+      t.name.localeCompare(name, undefined, { sensitivity: 'accent' }) === 0;
     if (tags.some(sameName)) {
-      return res.status(409).json({ ok: false, reason: "tag-name-exists" });
+      return res.status(409).json({ ok: false, reason: 'tag-name-exists' });
     }
 
     if (!tagId) tagId = uuidv4();
@@ -417,29 +417,29 @@ app.post("/api/tags", (req, res) => {
     return res.status(201).json({ ok: true, tag });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    return res.status(500).send(msg || "Server error");
+    return res.status(500).send(msg || 'Server error');
   }
 });
 
 // GET /api/albums/:albumId/photos
-app.get("/api/albums/:albumId/photos", (req, res) => {
+app.get('/api/albums/:albumId/photos', (req, res) => {
   try {
     const items = getPhotosByAlbum(String(req.params.albumId));
     res.json(items);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    res.status(500).send(msg || "Server error");
+    res.status(500).send(msg || 'Server error');
   }
 });
 
 // GET /api/tags/:tagId/photos
-app.get("/api/tags/:tagId/photos", (req, res) => {
+app.get('/api/tags/:tagId/photos', (req, res) => {
   try {
     const items = getPhotosByTag(String(req.params.tagId));
     res.json(items);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    res.status(500).send(msg || "Server error");
+    res.status(500).send(msg || 'Server error');
   }
 });
 
