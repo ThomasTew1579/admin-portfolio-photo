@@ -1,7 +1,12 @@
 import CategoryMenu from './CategoryMenu';
 import MenuItems from './MenuItems';
+import SubMenuItems from './SubMenuItems';
+import { useAlbumsTags } from '../hook/useAlbumsTags';
+
 
 function SideMenu() {
+  const { albums, tags, loading, error } = useAlbumsTags();
+
   return (
     <nav className="flex z-50 fixed pt-11 flex-col h-dvh w-sidebar bg-gray-600 border-r border-gray-300">
       <div className="deco absolute top-0 left-0 ">
@@ -10,7 +15,7 @@ function SideMenu() {
             <circle cx="6" cy="6" r="6" fill="#ff5f57" />
             <use
               className="group-hover:flex hidden"
-              href="/far.svg#xmark"
+              href="sprite/far.svg#xmark"
               width="10"
               height="10"
               x="1.1"
@@ -22,7 +27,7 @@ function SideMenu() {
             <circle cx="6" cy="6" r="6" fill="#febc2e" />
             <use
               className="group-hover:flex hidden"
-              href="/far.svg#minus"
+              href="sprite/far.svg#minus"
               width="10"
               height="10"
               x="1.1"
@@ -49,21 +54,38 @@ function SideMenu() {
         </div>
       </div>
       <CategoryMenu name="Photos">
-        <MenuItems href="/" icon="images">
-          Photothèque
+        <MenuItems title="Photothèque" href="/" icon="images"></MenuItems>
+        <MenuItems title="Albums" href="/albums" icon="folder-open">
+        {loading && (
+            <li className="list-none px-3 py-1 text-xs opacity-70">Chargement…</li>
+          )}
+          {error && (
+            <li className="list-none px-3 py-1 text-xs text-red-300">
+              Erreur de chargement des albums
+            </li>
+          )}
+          {!loading && !error && albums.map(a => (
+            <SubMenuItems
+              key={a.albumId}
+              title={a.name}
+              icon="images"
+              href={`/album?title=${a.name}`} 
+            />
+          ))}
         </MenuItems>
-        <MenuItems icon="folder-open">Album</MenuItems>
-        <MenuItems href="/upload" icon="arrow-down-to-square">
-          Import
+        <MenuItems title="Import" href="/upload" icon="arrow-down-to-square">
+          
         </MenuItems>
       </CategoryMenu>
       <CategoryMenu name="tags">
-        <MenuItems icon="tag">Skate</MenuItems>
-        <MenuItems icon="tag">Live</MenuItems>
-        <MenuItems icon="tag">Autre</MenuItems>
+        {loading && <li className="list-none px-3 py-1 text-xs opacity-70">Chargement…</li>}
+        {error && <li className="list-none px-3 py-1 text-xs text-red-300">Erreur de chargement</li>}
+        {!loading && !error && tags.map(t => (
+          <MenuItems key={t.tagId} title={t.name} icon="tag" href={`/tag?title=${t.name}`} />
+        ))}
       </CategoryMenu>
       <CategoryMenu name="Réglages" className="mt-auto pb-2">
-        <MenuItems icon="code">Export JSON</MenuItems>
+        <MenuItems title="Export JSON" icon="code"></MenuItems>
       </CategoryMenu>
     </nav>
   );
