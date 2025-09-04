@@ -327,6 +327,86 @@ app.delete('/api/photos/:id', (req, res) => {
   }
 });
 
+// POST /api/albums
+// body: { name: string; desc?: string; albumId?: string }
+app.post("/api/albums", (req, res) => {
+  try {
+    const nameRaw = req.body?.name;
+    const descRaw = req.body?.desc;
+    let albumId: string = String(req.body?.albumId ?? "").trim();
+
+    const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
+    const desc = typeof descRaw === "string" ? descRaw : undefined;
+
+    if (!name) {
+      return res.status(400).json({ ok: false, reason: "name-required" });
+    }
+
+    const albums = readJson<Album[]>(ALBUM_JSON, [] as Album[]);
+
+    if (albumId && albums.some(a => a.albumId === albumId)) {
+      return res.status(409).json({ ok: false, reason: "albumId-exists" });
+    }
+
+    const sameName = (a: Album) =>
+      a.name.localeCompare(name, undefined, { sensitivity: "accent" }) === 0;
+    if (albums.some(sameName)) {
+      return res.status(409).json({ ok: false, reason: "album-name-exists" });
+    }
+
+    if (!albumId) albumId = uuidv4();
+
+    const album: Album = { name, desc, albumId };
+    albums.push(album);
+    writeJson(ALBUM_JSON, albums);
+
+    return res.status(201).json({ ok: true, album });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return res.status(500).send(msg || "Server error");
+  }
+});
+
+// POST /api/tags
+// body: { name: string; desc?: string; tagId?: string }
+app.post("/api/tags", (req, res) => {
+  try {
+    const nameRaw = req.body?.name;
+    const descRaw = req.body?.desc;
+    let tagId: string = String(req.body?.tagId ?? "").trim();
+
+    const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
+    const desc = typeof descRaw === "string" ? descRaw : undefined;
+
+    if (!name) {
+      return res.status(400).json({ ok: false, reason: "name-required" });
+    }
+
+    const tags = readJson<Tag[]>(TAG_JSON, [] as Tag[]);
+
+    if (tagId && tags.some(t => t.tagId === tagId)) {
+      return res.status(409).json({ ok: false, reason: "tagId-exists" });
+    }
+
+    const sameName = (t: Tag) =>
+      t.name.localeCompare(name, undefined, { sensitivity: "accent" }) === 0;
+    if (tags.some(sameName)) {
+      return res.status(409).json({ ok: false, reason: "tag-name-exists" });
+    }
+
+    if (!tagId) tagId = uuidv4();
+
+    const tag: Tag = { name, desc, tagId };
+    tags.push(tag);
+    writeJson(TAG_JSON, tags);
+
+    return res.status(201).json({ ok: true, tag });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return res.status(500).send(msg || "Server error");
+  }
+});
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, PUBLIC_GALLERY_DIR),
   filename: (req, file, cb) => {
