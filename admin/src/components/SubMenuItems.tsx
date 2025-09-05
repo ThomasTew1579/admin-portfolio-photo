@@ -44,6 +44,18 @@ function SubMenuItems({ title, icon = 'images', hrefType, href, onClick }: MenuI
           </NavLink>
         </li>
       );
+    } else {
+      const linkClassName: NavLinkProps['className'] = ({ isActive }) =>
+        baseClass + (isActive ? activeClass : inactiveClass);
+
+      return (
+        <li className="list-none relative">
+          <Icon name={icon} size={14} className="absolute z-10 top-2 left-3 fill-gray-100" />
+          <NavLink to={href} end={href === '/'} className={linkClassName}>
+            {title}
+          </NavLink>
+        </li>
+      );
     }
   }
   return (

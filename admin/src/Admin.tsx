@@ -7,6 +7,7 @@ import PhotoLibrary from './pages/PhotoLibrary';
 import PhotoUploadForm from './pages/PhotoUploadForm';
 import Albums from './pages/Albums';
 import AlbumSingle from './pages/AlbumSingle';
+import TagSingle from './pages/TagSingle';
 import { useState } from 'react';
 
 function Admin() {
@@ -44,6 +45,12 @@ function Admin() {
             path="/album"
             element={
               <AlbumSingle grid={viewportConfig.grid} objectFit={viewportConfig.objectFit} />
+            }
+          />
+          <Route
+            path="/tag"
+            element={
+              <TagSingle grid={viewportConfig.grid} objectFit={viewportConfig.objectFit} />
             }
           />
         </Routes>

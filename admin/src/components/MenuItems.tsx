@@ -1,4 +1,4 @@
-import { NavLink, type NavLinkProps } from 'react-router-dom';
+import { NavLink, type NavLinkProps, useSearchParams } from 'react-router-dom';
 import { useState, type ReactNode } from 'react';
 import Icon from './Icon';
 
@@ -7,10 +7,13 @@ type MenuItemProps = {
   title: string;
   icon?: string;
   href?: string;
+  hrefType?: string;
   onClick?: () => void;
 };
 
-function MenuItems({ children, title, icon = 'arrow-right', href, onClick }: MenuItemProps) {
+function MenuItems({ children, title, icon = 'arrow-right', href, hrefType, onClick }: MenuItemProps) {
+  const [searchParams] = useSearchParams();
+  const param = searchParams.get('title');
   const baseClass =
     'block px-3 pl-10 py-1.5 text-sm font-medium w-full text-start rounded-md text-white ';
   const inactiveClass = 'opacity-90';
@@ -64,14 +67,32 @@ function MenuItems({ children, title, icon = 'arrow-right', href, onClick }: Men
         </li>
       );
     } else {
-      return (
-        <li className="list-none relative">
-          <NavLink to={href} end={href === '/'} className={linkClassName}>
-            <Icon name={icon} size={14} className="absolute z-10 top-2 left-5 fill-primary" />
-            {title}
-          </NavLink>
-        </li>
-      );
+      if (hrefType) {
+        const isCurrentSubMenuPage = param === href;
+        const linkClassName: NavLinkProps['className'] = ({ isActive }) =>
+          baseClass + (isActive && isCurrentSubMenuPage ? activeClass : inactiveClass);
+  
+        return (
+          <li className="list-none relative">
+            <Icon name={icon} size={14} className="absolute z-10 top-2 left-3 fill-primary" />
+            <NavLink to={hrefType + '?title=' + href} end={href === '/'} className={linkClassName}>
+              {title}
+            </NavLink>
+          </li>
+        );
+      } else {
+        const linkClassName: NavLinkProps['className'] = ({ isActive }) =>
+          baseClass + (isActive ? activeClass : inactiveClass);
+  
+        return (
+          <li className="list-none relative">
+            <Icon name={icon} size={14} className="absolute z-10 top-2 left-3 fill-primary" />
+            <NavLink to={href} end={href === '/'} className={linkClassName}>
+              {title}
+            </NavLink>
+          </li>
+        );
+      }
     }
   }
   return (

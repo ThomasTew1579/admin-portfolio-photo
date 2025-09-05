@@ -1,26 +1,26 @@
-import albumsJson from '../assets/album.json';
+import tagJson from '../assets/tag.json';
 import galleryJson from '../assets/gallery.json';
 import Icon from '../components/Icon';
-import { photosInAlbum } from '../helpers/catalog';
+import { photosWithTag } from '../helpers/catalog';
 import { useSearchParams } from 'react-router-dom';
-import type { GalleryItem, Album } from '../types/type';
+import type { GalleryItem, Tag } from '../types/type';
 
 type AlbumProps = {
   grid: number;
   objectFit: boolean;
 };
 
-const albums = albumsJson as Album[];
+const tags = tagJson as Tag[];
 const gallery = galleryJson as GalleryItem[];
 
-function AlbumSingle({ grid, objectFit }: AlbumProps) {
+function TagSingle({ grid, objectFit }: AlbumProps) {
   const fit: string = objectFit ? ' md:object-cover' : ' md:object-contain';
   const [searchParams] = useSearchParams();
   const param = searchParams.get('title')?.toString();
-  const galleryAlbum: GalleryItem[] = photosInAlbum(
-    albums,
+  const galleryAlbum: GalleryItem[] = photosWithTag(
+    tags,
     gallery,
-    { albumId: '', name: param },
+    { tagId: '', name: param },
     { sort: 'date-desc' }
   );
 
@@ -50,4 +50,4 @@ function AlbumSingle({ grid, objectFit }: AlbumProps) {
   );
 }
 
-export default AlbumSingle;
+export default TagSingle;

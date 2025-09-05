@@ -30,7 +30,13 @@ function SideMenu() {
       </CategoryMenu>
       <CategoryMenu name="tags">
         {tags.map((t) => (
-          <MenuItems key={t.tagId} title={t.name} icon="tag" href={`/tag?title=${t.name}`} />
+          <MenuItems 
+          key={t.tagId} 
+          title={t.name} 
+          icon="tag" 
+          hrefType="tag"
+          href={t.name}
+          />
         ))}
       </CategoryMenu>
       <CategoryMenu name="Réglages" className="mt-auto pb-2">

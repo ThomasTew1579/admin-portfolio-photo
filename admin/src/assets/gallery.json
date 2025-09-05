@@ -40,7 +40,7 @@
     "month": 4,
     "day": 5,
     "albumId": "24eeb19a-5f2b-455f-8e42-6f4848019d89",
-    "tagId": "",
+    "tagId": "24eeb19a-5f2b-455f-8e42",
     "id": "24eeb19a-5f2b-455f-8e42-6f4848019d89"
   },
   {
@@ -62,7 +62,7 @@
     "month": 4,
     "day": 5,
     "albumId": "97cc537e-0173-4959-9fad-9a75547349d3",
-    "tagId": "",
+    "tagId": "24eeb19a-5f2b-455f-8e42",
     "id": "0a287518-262a-41a8-b76d-858c884ae83f"
   },
   {
@@ -84,7 +84,7 @@
     "month": 4,
     "day": 5,
     "albumId": "24eeb19a-5f2b-455f-8e42-6f4848019d89",
-    "tagId": "",
+    "tagId": "24eeb19a-5f2b-455f-8e42",
     "id": "ce79d7f8-b8e5-44af-b00b-0cf0b50ec0b4"
   },
   {
@@ -161,7 +161,7 @@
     "month": 4,
     "day": 5,
     "albumId": "97cc537e-0173-4959-9fad-9a75547349d3",
-    "tagId": "",
+    "tagId": "97cc537e-0173-4959-9fad",
     "id": "e3e0718c-ac3b-4f38-8ba5-60e33632d0d4"
   },
   {
@@ -172,7 +172,7 @@
     "month": 4,
     "day": 5,
     "albumId": "",
-    "tagId": "",
+    "tagId": "97cc537e-0173-4959-9fad",
     "id": "568a1247-4634-4cfd-ad59-6d253f28206b"
   },
   {
@@ -183,7 +183,7 @@
     "month": 4,
     "day": 5,
     "albumId": "",
-    "tagId": "",
+    "tagId": "97cc537e-0173-4959-9fad",
     "id": "19c35687-4f63-4230-8937-fb82b9ffbb25"
   },
   {
