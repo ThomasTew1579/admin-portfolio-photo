@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import * as exifr from 'exifr';
 import type { Album, Tag, FormState } from '../types/type';
 
-
 export default function PhotoUploadForm() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);

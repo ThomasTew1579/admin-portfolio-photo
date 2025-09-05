@@ -1,20 +1,6 @@
 import gallery from '../assets/gallery.json';
 import Icon from '../components/Icon';
 
-// type Photo = {
-//     nom: string
-//     description?: string
-//     date?: string
-//     filename: string
-//     path: string
-//     thumbnailPath: string
-//     year : number
-//     month : number
-//     day : number
-//     albumId? : string
-//     tagId? : string
-//   }
-
 type PhotoLibraryProps = {
   grid: number;
   objectFit: boolean;
