@@ -22,3 +22,4 @@ export type FormState = {
   albumId: string;
   tagId: string;
 };
+export type SortMode = 'date-asc' | 'date-desc' | 'none';
