@@ -15,6 +15,7 @@ export default function PhotoUploadForm() {
     day: new Date().getDate(),
     albumId: '',
     tagId: '',
+    thumbnail: null,
   });
 
   useEffect(() => {
@@ -74,6 +75,24 @@ export default function PhotoUploadForm() {
     }));
   }
 
+  function onThumbnailChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setForm((prev) => ({ 
+        ...prev, 
+        thumbnail: null, 
+        thumbnailPreviewUrl: undefined 
+      }));
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      thumbnail: file,
+      thumbnailPreviewUrl: URL.createObjectURL(file),
+    }));
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.file) {
@@ -90,6 +109,11 @@ export default function PhotoUploadForm() {
     fd.append('day', String(form.day));
     fd.append('albumId', form.albumId);
     fd.append('tagId', form.tagId);
+    
+    // Ajouter la miniature si elle est sélectionnée
+    if (form.thumbnail) {
+      fd.append('thumbnail', form.thumbnail);
+    }
 
     const res = await fetch('/api/photos', { method: 'POST', body: fd });
     const data = await res.json().catch(() => null);
@@ -110,6 +134,15 @@ export default function PhotoUploadForm() {
 
       {form.previewUrl && (
         <img src={form.previewUrl} alt="preview" style={{ maxWidth: 240, borderRadius: 8 }} />
+      )}
+
+      <div>
+        <label className="block text-sm mb-1">Miniature (thumbnail)</label>
+        <input type="file" accept="image/*" onChange={onThumbnailChange} />
+      </div>
+
+      {form.thumbnailPreviewUrl && (
+        <img src={form.thumbnailPreviewUrl} alt="thumbnail preview" style={{ maxWidth: 120, borderRadius: 8 }} />
       )}
 
       <div>

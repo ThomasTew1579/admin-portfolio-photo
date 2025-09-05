@@ -21,5 +21,7 @@ export type FormState = {
   day: number;
   albumId: string;
   tagId: string;
+  thumbnail: File | null;
+  thumbnailPreviewUrl?: string;
 };
 export type SortMode = 'date-asc' | 'date-desc' | 'none';
