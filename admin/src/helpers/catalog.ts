@@ -1,16 +1,4 @@
-export type Album = { name: string; desc?: string; albumId: string };
-export type Tag = { name: string; desc?: string; tagId: string };
-export type GalleryItem = {
-  filename: string;
-  path: string;
-  thumbnailPath: string;
-  year: number;
-  month: number;
-  day: number;
-  albumId: string;
-  tagId: string;
-  id: string;
-};
+import type { Album, Tag, GalleryItem } from '../types/type';
 
 async function fetchJSON<T>(url: string, signal?: AbortSignal): Promise<T> {
   const res = await fetch(url, { signal, headers: { Accept: 'application/json' } });

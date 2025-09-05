@@ -1,19 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as exifr from 'exifr';
+import type { Album, Tag, FormState } from '../types/type';
 
-type Album = { name: string; desc?: string; albumId: string };
-type Tag = { name: string; desc?: string; tagId: string };
-
-type FormState = {
-  file: File | null;
-  previewUrl?: string;
-  filename: string;
-  year: number;
-  month: number;
-  day: number;
-  albumId: string;
-  tagId: string;
-};
 
 export default function PhotoUploadForm() {
   const [albums, setAlbums] = useState<Album[]>([]);

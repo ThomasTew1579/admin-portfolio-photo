@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import type { ViewportConfig } from './types/type';
 
 import SideMenu from './components/SideMenu';
 import TopMenu from './components/TopMenu';
@@ -6,8 +7,6 @@ import PhotoLibrary from './pages/PhotoLibrary';
 import PhotoUploadForm from './pages/PhotoUploadForm';
 import Albums from './pages/Albums';
 import { useState } from 'react';
-
-type ViewportConfig = { grid: number; objectFit: boolean };
 
 function Admin() {
   const [viewportConfig, setViewportConfig] = useState<ViewportConfig>({

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { type Album, type Tag, getAlbumsAndTags } from '../helpers/catalog';
+import { getAlbumsAndTags } from '../helpers/catalog';
+import type { Album, Tag } from '../types/type';
 
 type State = {
   albums: Album[];
