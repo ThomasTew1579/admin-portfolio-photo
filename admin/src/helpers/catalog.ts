@@ -58,7 +58,7 @@ export function photosInAlbum(
   return items;
 }
 
-export function photosInAlbum(
+export function photosWithTag(
   tags: Tag[],
   gallery: GalleryItem[],
   tagRef: { tagId?: string; name?: string },
@@ -73,7 +73,7 @@ export function photosInAlbum(
   }
   if (!tagId) return [];
 
-  let items = gallery.filter((g) => g.TagId === tagId);
+  let items = gallery.filter((g) => g.tagId === tagId);
 
   const cmpDate = (a: GalleryItem, b: GalleryItem) =>
     a.year - b.year || a.month - b.month || a.day - b.day;
