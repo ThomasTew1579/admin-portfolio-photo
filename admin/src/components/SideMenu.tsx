@@ -21,7 +21,8 @@ function SideMenu() {
               key={a.albumId}
               title={a.name}
               icon="images"
-              href={`/album?title=${a.name}`}
+              hrefType="album"
+              href={a.name}
             />
           ))}
         </MenuItems>

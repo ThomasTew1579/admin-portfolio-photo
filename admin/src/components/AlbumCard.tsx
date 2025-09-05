@@ -13,7 +13,7 @@ export default function AlbumCard({ title, preview, nbPhotos }: Props) {
 
   return (
     <NavLink
-      to={`/albums?title=${title}`}
+      to={`/album?title=${title}`}
       className="flex flex-row rounded-2xl overflow-clip bg-gray-400 hover:outline-3 outline-primary"
     >
       <div className="relative bg-gray-350 aspect-square h-24">

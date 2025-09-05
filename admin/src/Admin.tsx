@@ -6,6 +6,7 @@ import TopMenu from './components/TopMenu';
 import PhotoLibrary from './pages/PhotoLibrary';
 import PhotoUploadForm from './pages/PhotoUploadForm';
 import Albums from './pages/Albums';
+import AlbumSingle from './pages/AlbumSingle';
 import { useState } from 'react';
 
 function Admin() {
@@ -39,6 +40,12 @@ function Admin() {
           />
           <Route path="/upload" element={<PhotoUploadForm />} />
           <Route path="/albums" element={<Albums />} />
+          <Route
+            path="/album"
+            element={
+              <AlbumSingle grid={viewportConfig.grid} objectFit={viewportConfig.objectFit} />
+            }
+          />
         </Routes>
       </div>
     </>
