@@ -70,7 +70,7 @@ export function getPhotosByTag(tagId: string): GalleryItem[] {
   const id = String(tagId).trim();
   if (!id) return [];
   const gallery = readJson<GalleryItem[]>(GALLERY_JSON, [] as GalleryItem[]);
-  return gallery.filter((g) => g.tagId === id); 
+  return gallery.filter((g) => g.tagId === id);
 }
 
 // PATCH /api/photos/:id
