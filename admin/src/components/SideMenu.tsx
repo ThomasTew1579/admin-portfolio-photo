@@ -34,7 +34,7 @@ function SideMenu() {
         ))}
       </CategoryMenu>
       <CategoryMenu name="Réglages" className="mt-auto pb-2">
-        <MenuItems title="Export JSON" icon="code"></MenuItems>
+        <MenuItems title="Export JSON" icon="code" href="/export"></MenuItems>
       </CategoryMenu>
     </nav>
   );
