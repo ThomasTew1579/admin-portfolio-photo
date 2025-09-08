@@ -104,3 +104,32 @@ export function photosWithTag(
 
   return items;
 }
+
+export async function updatePhoto(
+  id: string,
+  body: Partial<Pick<GalleryItem, 'year' | 'month' | 'day' | 'albumId' | 'tagId'>>,
+  signal?: AbortSignal
+) {
+  const url = `/api/photos/${encodeURIComponent(id)}`;
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`PATCH ${url} -> ${res.status}${txt ? `: ${txt}` : ''}`);
+  }
+  return (await res.json()) as { ok: boolean; entry: GalleryItem };
+}
+
+export async function deletePhoto(id: string, signal?: AbortSignal) {
+  const url = `/api/photos/${encodeURIComponent(id)}`;
+  const res = await fetch(url, { method: 'DELETE', headers: { Accept: 'application/json' }, signal });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`DELETE ${url} -> ${res.status}${txt ? `: ${txt}` : ''}`);
+  }
+  return (await res.json()) as { ok: boolean; removedId: string };
+}

@@ -5,17 +5,19 @@ type ThumbnailProps = {
   path: string;
   id: number;
   fit: string;
-  onClick?: () => void;
   onDoubleClick?: () => void;
 };
 
-function ThumbnailOnGrid({ path, id, fit, onClick, onDoubleClick }: ThumbnailProps) {
+function ThumbnailOnGrid({ path, id, fit, onDoubleClick }: ThumbnailProps) {
   const [isActive, setIsActive] = useState(false);
   const toggleIsActive = () => setIsActive((prev) => !prev);
 
   return (
     <div
       key={id}
+      onDoubleClick={() => {
+        if (onDoubleClick) onDoubleClick();
+      }}
       onClick={() => {
         toggleIsActive();
       }}
