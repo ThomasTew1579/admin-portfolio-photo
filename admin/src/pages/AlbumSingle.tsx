@@ -1,5 +1,5 @@
-import albumsJson from '../assets/album.json';
-import galleryJson from '../assets/gallery.json';
+import albumsJson from '../../../portfolio/src/assets/album.json';
+import galleryJson from '../../../portfolio/src/assets/gallery.json';
 import Icon from '../components/Icon';
 import { photosInAlbum } from '../helpers/catalog';
 import { useState } from 'react';

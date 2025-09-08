@@ -1,5 +1,5 @@
-import tagJson from '../assets/tag.json';
-import galleryJson from '../assets/gallery.json';
+import tagJson from '../../../portfolio/src/assets/tag.json';
+import galleryJson from '../../../portfolio/src/assets/gallery.json';
 import Icon from '../components/Icon';
 import { photosWithTag } from '../helpers/catalog';
 import { useState } from 'react';

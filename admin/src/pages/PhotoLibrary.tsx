@@ -1,4 +1,4 @@
-import gallery from '../assets/gallery.json';
+import gallery from '../../../portfolio/src/assets/gallery.json';
 import ThumbnailOnGrid from '../components/ThumbnailOnGrid';
 import { useState } from 'react';
 import type { GalleryItem } from '../types/type';

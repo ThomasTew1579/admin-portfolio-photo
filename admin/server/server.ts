@@ -11,7 +11,7 @@ app.use(express.json());
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [k: string]: JsonValue };
-type Album = { name: string; desc?: string; albumId: string, published: boolean };
+type Album = { name: string; desc?: string; albumId: string; published: boolean };
 type GalleryItem = {
   filename: string;
   path: string;
@@ -26,9 +26,17 @@ type GalleryItem = {
 type Tag = { name: string; desc?: string; tagId: string };
 
 const PUBLIC_GALLERY_DIR = path.resolve(process.cwd(), 'public', 'gallery');
-const GALLERY_JSON = path.resolve(process.cwd(), 'src', 'assets', 'gallery.json');
-const ALBUM_JSON = path.resolve(process.cwd(), 'src', 'assets', 'album.json');
-const TAG_JSON = path.resolve(process.cwd(), 'src', 'assets', 'tag.json');
+// const PUBLIC_GALLERY_DIR = path.resolve(process.cwd(), '../portfolio', 'public', 'gallery');
+const GALLERY_JSON = path.resolve(process.cwd(), '../portfolio', 'src', 'assets', 'gallery.json');
+const ALBUM_JSON = path.resolve(process.cwd(), '../portfolio', 'src', 'assets', 'album.json');
+const TAG_JSON = path.resolve(process.cwd(), '../portfolio', 'src', 'assets', 'tag.json');
+const PORTFOLIO_PUBLIC_GALLERY = path.resolve(
+  process.cwd(),
+  '..',
+  'portfolio',
+  'public',
+  'gallery'
+);
 
 const slug = (s: string) =>
   s
@@ -471,6 +479,12 @@ app.get('/api/albums', (_req, res) => {
   res.json(norm);
 });
 
+// GET /api/gallery -> retourne l'intégralité du catalogue de photos
+app.get('/api/gallery', (_req, res) => {
+  const gallery = readJson<GalleryItem[]>(GALLERY_JSON, []);
+  res.json(gallery);
+});
+
 app.get('/api/tags', (_req, res) => {
   const tags = readJson<Tag[]>(TAG_JSON, []);
   const norm = tags.map((t) => ({
@@ -531,6 +545,28 @@ app.post('/api/photos', upload.single('photo'), (req, res) => {
     res.json({ ok: true, entry });
   } catch (e: unknown) {
     console.error(e);
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).send(msg || 'Server error');
+  }
+});
+
+// POST /api/export/copy-gallery -> copie tous les fichiers vers ../portfolio/public/gallery
+app.post('/api/export/copy-gallery', (_req, res) => {
+  try {
+    fs.mkdirSync(PORTFOLIO_PUBLIC_GALLERY, { recursive: true });
+    const files = fs.readdirSync(PUBLIC_GALLERY_DIR);
+    let copied = 0;
+    for (const f of files) {
+      const src = path.join(PUBLIC_GALLERY_DIR, f);
+      const dst = path.join(PORTFOLIO_PUBLIC_GALLERY, f);
+      const stat = fs.statSync(src);
+      if (stat.isFile()) {
+        fs.copyFileSync(src, dst);
+        copied++;
+      }
+    }
+    res.json({ ok: true, copiedFiles: copied });
+  } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     res.status(500).send(msg || 'Server error');
   }

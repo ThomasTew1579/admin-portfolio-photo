@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AlbumCard from '../components/AlbumCard';
-import albumsJson from '../assets/album.json';
-import galleryJson from '../assets/gallery.json';
+import albumsJson from '../../../portfolio/src/assets/album.json';
+import galleryJson from '../../../portfolio/src/assets/gallery.json';
 import { photosInAlbum, updateAlbum } from '../helpers/catalog';
 import type { Album, GalleryItem } from '../types/type';
 
