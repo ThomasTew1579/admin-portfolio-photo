@@ -13,7 +13,7 @@ import { useState } from 'react';
 function Admin() {
   const [viewportConfig, setViewportConfig] = useState<ViewportConfig>({
     grid: 220,
-    objectFit: false,
+    objectFit: true,
   });
 
   const toggleObjectFit = () =>
@@ -49,9 +49,7 @@ function Admin() {
           />
           <Route
             path="/tag"
-            element={
-              <TagSingle grid={viewportConfig.grid} objectFit={viewportConfig.objectFit} />
-            }
+            element={<TagSingle grid={viewportConfig.grid} objectFit={viewportConfig.objectFit} />}
           />
         </Routes>
       </div>

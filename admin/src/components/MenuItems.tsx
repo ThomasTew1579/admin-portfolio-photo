@@ -11,7 +11,14 @@ type MenuItemProps = {
   onClick?: () => void;
 };
 
-function MenuItems({ children, title, icon = 'arrow-right', href, hrefType, onClick }: MenuItemProps) {
+function MenuItems({
+  children,
+  title,
+  icon = 'arrow-right',
+  href,
+  hrefType,
+  onClick,
+}: MenuItemProps) {
   const [searchParams] = useSearchParams();
   const param = searchParams.get('title');
   const baseClass =
@@ -71,7 +78,7 @@ function MenuItems({ children, title, icon = 'arrow-right', href, hrefType, onCl
         const isCurrentSubMenuPage = param === href;
         const linkClassName: NavLinkProps['className'] = ({ isActive }) =>
           baseClass + (isActive && isCurrentSubMenuPage ? activeClass : inactiveClass);
-  
+
         return (
           <li className="list-none relative">
             <Icon name={icon} size={14} className="absolute z-10 top-2 left-3 fill-primary" />
@@ -83,7 +90,7 @@ function MenuItems({ children, title, icon = 'arrow-right', href, hrefType, onCl
       } else {
         const linkClassName: NavLinkProps['className'] = ({ isActive }) =>
           baseClass + (isActive ? activeClass : inactiveClass);
-  
+
         return (
           <li className="list-none relative">
             <Icon name={icon} size={14} className="absolute z-10 top-2 left-3 fill-primary" />
