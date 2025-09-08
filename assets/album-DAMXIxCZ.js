@@ -1,1 +1,0 @@
-const e=[{name:"Portrait",desc:"photo de portrait ?",albumId:"97cc537e-0173-4959-9fad-9a75547349d3",published:!0},{name:"Skate HDV",desc:"photo de skate a HDV Lyon",albumId:"24eeb19a-5f2b-455f-8e42-6f4848019d89",published:!1},{name:"Test",desc:"album vide",albumId:"24eeb19a-zerr-455f-8e42-6f4848019d89",published:!1}];export{e as a};
