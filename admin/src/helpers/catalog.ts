@@ -126,7 +126,11 @@ export async function updatePhoto(
 
 export async function deletePhoto(id: string, signal?: AbortSignal) {
   const url = `/api/photos/${encodeURIComponent(id)}`;
-  const res = await fetch(url, { method: 'DELETE', headers: { Accept: 'application/json' }, signal });
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: { Accept: 'application/json' },
+    signal,
+  });
   if (!res.ok) {
     const txt = await res.text().catch(() => '');
     throw new Error(`DELETE ${url} -> ${res.status}${txt ? `: ${txt}` : ''}`);

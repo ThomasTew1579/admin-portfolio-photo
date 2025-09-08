@@ -1,0 +1,11 @@
+# Monorepo ignores
+portfolio/
+
+# Node
+node_modules/
+
+# Builds
+dist/
+*.log
+.DS_Store
+

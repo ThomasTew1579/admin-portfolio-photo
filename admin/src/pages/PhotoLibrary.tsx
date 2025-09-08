@@ -14,9 +14,9 @@ function PhotoLibrary({ grid, objectFit }: PhotoLibraryProps) {
   const [selected, setSelected] = useState<GalleryItem | null>(null);
 
   return (
-    <div className="photo-library p-3">
+    <div className="photo-library relative">
       <div
-        className="grid gap-2 grid-cols-3 md:[grid-template-columns:repeat(auto-fit,minmax(var(--grid,220px),1fr))] "
+        className="grid gap-2 grid-cols-3 md:[grid-template-columns:repeat(auto-fit,minmax(var(--grid,220px),1fr))]  p-3"
         style={{ ['--grid' as string]: `${grid}px` }}
       >
         {gallery.map((_, idx) => (
@@ -33,9 +33,10 @@ function PhotoLibrary({ grid, objectFit }: PhotoLibraryProps) {
           photo={selected}
           onClose={() => setSelected(null)}
           onUpdated={(entry, removed) => {
-            // Simple rafraîchissement local du tableau en mémoire
             if (removed) {
-              const i = (gallery as unknown as GalleryItem[]).findIndex((g) => g.id === selected.id);
+              const i = (gallery as unknown as GalleryItem[]).findIndex(
+                (g) => g.id === selected.id
+              );
               if (i !== -1) (gallery as unknown as GalleryItem[]).splice(i, 1);
             } else if (entry) {
               const i = (gallery as unknown as GalleryItem[]).findIndex((g) => g.id === entry.id);

@@ -127,4 +127,3 @@ export default function PhotoEditModal({ photo, onClose, onUpdated }: Props) {
     </div>
   );
 }
-

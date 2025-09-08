@@ -10,7 +10,13 @@ type Props = {
   onTogglePublished?: () => void;
 };
 
-export default function AlbumCard({ title, preview, nbPhotos, published, onTogglePublished }: Props) {
+export default function AlbumCard({
+  title,
+  preview,
+  nbPhotos,
+  published,
+  onTogglePublished,
+}: Props) {
   const hasPreview = Array.isArray(preview) && preview.length > 0;
 
   return (
@@ -32,7 +38,9 @@ export default function AlbumCard({ title, preview, nbPhotos, published, onToggl
         <span className="text-md font-medium text-gray-100">{nbPhotos}</span>
         {published !== undefined && (
           <div className=" flex items-center gap-2">
-            <span className={`text-xs px-2 py-0.5 rounded ${published ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}`}>
+            <span
+              className={`text-xs px-2 py-0.5 rounded ${published ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}`}
+            >
               {published ? 'Publié' : 'Brouillon'}
             </span>
             {onTogglePublished && (

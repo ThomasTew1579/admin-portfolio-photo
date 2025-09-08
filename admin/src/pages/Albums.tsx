@@ -21,11 +21,15 @@ export default function AlbumsPage() {
   const togglePublished = async (album: Album) => {
     try {
       const next = !album.published;
-      setAlbums((prev) => prev.map((a) => (a.albumId === album.albumId ? { ...a, published: next } : a)));
+      setAlbums((prev) =>
+        prev.map((a) => (a.albumId === album.albumId ? { ...a, published: next } : a))
+      );
       await updateAlbum(album.albumId, { published: next });
     } catch (e) {
       // revert on error
-      setAlbums((prev) => prev.map((a) => (a.albumId === album.albumId ? { ...a, published: album.published } : a)));
+      setAlbums((prev) =>
+        prev.map((a) => (a.albumId === album.albumId ? { ...a, published: album.published } : a))
+      );
       console.error(e);
     }
   };

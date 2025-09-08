@@ -150,7 +150,7 @@
     "month": 4,
     "day": 5,
     "albumId": "",
-    "tagId": "",
+    "tagId": "24eeb19a-5f2b-455f-8e42",
     "id": "688920c4-16af-412d-aad8-ce875dedcdce"
   },
   {
@@ -197,5 +197,16 @@
     "TagId": "97cc537e-0173-4959-9fad",
     "id": "d3dea493-dfd9-499e-a18a-ee44c0570aaa",
     "tagId": ""
+  },
+  {
+    "filename": "dsc03027-1757340349318.jpeg",
+    "path": "./gallery/dsc03027-1757340349318.jpeg",
+    "thumbnailPath": "",
+    "year": 2015,
+    "month": 1,
+    "day": 5,
+    "albumId": "97cc537e-0173-4959-9fad-9a75547349d3",
+    "tagId": "97cc537e-0173-4959-9fad",
+    "id": "ca75a58d-afba-4931-a7b8-35e6bcc96f0a"
   }
 ]

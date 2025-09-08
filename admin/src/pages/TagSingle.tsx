@@ -59,10 +59,14 @@ function TagSingle({ grid, objectFit }: AlbumProps) {
           onClose={() => setSelected(null)}
           onUpdated={(entry, removed) => {
             if (removed) {
-              const i = (galleryAlbum as unknown as GalleryItem[]).findIndex((g) => g.id === selected.id);
+              const i = (galleryAlbum as unknown as GalleryItem[]).findIndex(
+                (g) => g.id === selected.id
+              );
               if (i !== -1) (galleryAlbum as unknown as GalleryItem[]).splice(i, 1);
             } else if (entry) {
-              const i = (galleryAlbum as unknown as GalleryItem[]).findIndex((g) => g.id === entry.id);
+              const i = (galleryAlbum as unknown as GalleryItem[]).findIndex(
+                (g) => g.id === entry.id
+              );
               if (i !== -1) (galleryAlbum as unknown as GalleryItem[])[i] = entry;
             }
           }}

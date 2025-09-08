@@ -7,6 +7,7 @@ import TopMenu from './components/TopMenu';
 const PhotoLibrary = lazy(() => import('./pages/PhotoLibrary'));
 const PhotoUploadForm = lazy(() => import('./pages/PhotoUploadForm'));
 const Albums = lazy(() => import('./pages/Albums'));
+const ExportPage = lazy(() => import('./pages/Export'));
 const AlbumSingle = lazy(() => import('./pages/AlbumSingle'));
 const TagSingle = lazy(() => import('./pages/TagSingle'));
 
@@ -60,6 +61,7 @@ function Admin() {
                 <TagSingle grid={viewportConfig.grid} objectFit={viewportConfig.objectFit} />
               }
             />
+            <Route path="/export" element={<ExportPage />} />
           </Routes>
         </Suspense>
       </div>
