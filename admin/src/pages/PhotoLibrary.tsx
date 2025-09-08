@@ -1,5 +1,5 @@
 import gallery from '../assets/gallery.json';
-import Icon from '../components/Icon';
+import ThumbnailOnGrid from '../components/ThumbnailOnGrid';
 
 type PhotoLibraryProps = {
   grid: number;
@@ -16,19 +16,7 @@ function PhotoLibrary({ grid, objectFit }: PhotoLibraryProps) {
         style={{ ['--grid' as string]: `${grid}px` }}
       >
         {gallery.map((_, idx) => (
-          <div key={idx} className="photo relative aspect-square h-full overflow-clip group">
-            <img
-              className={
-                'h-full w-full object-cover group-hover:scale-110 duration-200 group-hover:opacity-80' +
-                fit
-              }
-              src={gallery[idx].path}
-              alt=""
-            />
-            <button className="absolute top-1/2 left-1/2 -translate-1/2 group-hover:opacity-100 opacity-0 duration-200">
-              <Icon name="circle-ellipsis" size={40} className="fill-white z-10" />
-            </button>
-          </div>
+          <ThumbnailOnGrid id={idx} path={gallery[idx].path} fit={fit} />
         ))}
       </div>
     </div>

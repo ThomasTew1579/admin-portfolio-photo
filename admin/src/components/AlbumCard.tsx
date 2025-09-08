@@ -6,9 +6,11 @@ type Props = {
   title: string;
   preview: GalleryItem[];
   nbPhotos: number;
+  published?: boolean;
+  onTogglePublished?: () => void;
 };
 
-export default function AlbumCard({ title, preview, nbPhotos }: Props) {
+export default function AlbumCard({ title, preview, nbPhotos, published, onTogglePublished }: Props) {
   const hasPreview = Array.isArray(preview) && preview.length > 0;
 
   return (
@@ -28,6 +30,25 @@ export default function AlbumCard({ title, preview, nbPhotos }: Props) {
       <div className="p-3 w-full flex justify-center felx flex-col">
         <h3 className="text-md font-medium text-white truncate">{title}</h3>
         <span className="text-md font-medium text-gray-100">{nbPhotos}</span>
+        {published !== undefined && (
+          <div className=" flex items-center gap-2">
+            <span className={`text-xs px-2 py-0.5 rounded ${published ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}`}>
+              {published ? 'Publié' : 'Brouillon'}
+            </span>
+            {onTogglePublished && (
+              <button
+                type="button"
+                className="text-xs px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-500"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onTogglePublished();
+                }}
+              >
+                {published ? 'Dépublier' : 'Publier'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </NavLink>
   );

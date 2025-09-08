@@ -4,7 +4,7 @@ import { useState } from 'react';
 type ThumbnailProps = {
   path: string;
   id: number;
-  fit: boolean;
+  fit: string;
   onClick?: () => void;
   onDoubleClick?: () => void;
 };

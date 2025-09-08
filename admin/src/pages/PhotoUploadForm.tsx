@@ -120,11 +120,14 @@ export default function PhotoUploadForm() {
         <h1 className="text-3xl text-white font-semibold mb-4">Import photo</h1>
       </div>
       <form onSubmit={onSubmit} className="space-y-4 text-gray-100 px-18 py-6">
-
         <div className="flex items-center justify-center w-full">
           <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
             {form.previewUrl && (
-              <img src={form.previewUrl} alt="preview" style={{maxHeight: 240, borderRadius: 8 }} />
+              <img
+                src={form.previewUrl}
+                alt="preview"
+                style={{ maxHeight: 240, borderRadius: 8 }}
+              />
             )}
             {!form.previewUrl && (
               <div className="flex flex-col items-center justify-center pt-5 pb-6">

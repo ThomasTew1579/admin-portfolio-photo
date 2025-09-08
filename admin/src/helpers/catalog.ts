@@ -11,6 +11,25 @@ async function fetchJSON<T>(url: string, signal?: AbortSignal): Promise<T> {
 
 export const getAlbums = (signal?: AbortSignal) => fetchJSON<Album[]>('/api/albums', signal);
 
+export async function updateAlbum(
+  albumId: string,
+  body: Partial<Pick<Album, 'name' | 'desc' | 'albumId' | 'published'>>,
+  signal?: AbortSignal
+) {
+  const url = `/api/albums/${encodeURIComponent(albumId)}`;
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`PATCH ${url} -> ${res.status}${txt ? `: ${txt}` : ''}`);
+  }
+  return (await res.json()) as { ok: boolean; album: Album };
+}
+
 export const getTags = (signal?: AbortSignal) => fetchJSON<Tag[]>('/api/tags', signal);
 
 export const getAlbumsAndTags = async (signal?: AbortSignal) => {

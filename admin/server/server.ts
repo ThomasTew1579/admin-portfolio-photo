@@ -11,7 +11,7 @@ app.use(express.json());
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [k: string]: JsonValue };
-type Album = { name: string; desc?: string; albumId: string };
+type Album = { name: string; desc?: string; albumId: string, published: boolean };
 type GalleryItem = {
   filename: string;
   path: string;
@@ -161,7 +161,7 @@ app.patch('/api/photos/:id', (req, res) => {
 });
 
 // PATCH /api/albums/:albumId
-// body: { name?, desc?, replaceId? }  (replaceId pour migrer toutes les photos)
+// body: { name?, desc?, replaceId?, published? }  (replaceId pour migrer toutes les photos)
 app.patch('/api/albums/:albumId', (req, res) => {
   try {
     const albumId = String(req.params.albumId).trim();
@@ -175,6 +175,7 @@ app.patch('/api/albums/:albumId', (req, res) => {
     if (typeof body.name === 'string') albums[i].name = body.name;
     if (typeof body.desc === 'string' || body.desc === null)
       albums[i].desc = body.desc ?? undefined;
+    if (typeof body.published === 'boolean') albums[i].published = body.published;
 
     if (replaceId && replaceId !== albumId) {
       if (albums.some((a) => a.albumId === replaceId)) {
@@ -342,12 +343,13 @@ app.delete('/api/photos/:id', (req, res) => {
 });
 
 // POST /api/albums
-// body: { name: string; desc?: string; albumId?: string }
+// body: { name: string; desc?: string; albumId?: string; published?: boolean }
 app.post('/api/albums', (req, res) => {
   try {
     const nameRaw = req.body?.name;
     const descRaw = req.body?.desc;
     let albumId: string = String(req.body?.albumId ?? '').trim();
+    const publishedBody = req.body?.published;
 
     const name = typeof nameRaw === 'string' ? nameRaw.trim() : '';
     const desc = typeof descRaw === 'string' ? descRaw : undefined;
@@ -370,7 +372,8 @@ app.post('/api/albums', (req, res) => {
 
     if (!albumId) albumId = uuidv4();
 
-    const album: Album = { name, desc, albumId };
+    const published = typeof publishedBody === 'boolean' ? publishedBody : false;
+    const album: Album = { name, desc, albumId, published };
     albums.push(album);
     writeJson(ALBUM_JSON, albums);
 
@@ -463,6 +466,7 @@ app.get('/api/albums', (_req, res) => {
     name: a.name,
     desc: a.desc,
     albumId: a.albumId,
+    published: a.published,
   }));
   res.json(norm);
 });

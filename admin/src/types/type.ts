@@ -1,4 +1,4 @@
-export type Album = { name: string; desc?: string; albumId: string };
+export type Album = { name: string; desc?: string; albumId: string, published: boolean };
 export type Tag = { name: string; desc?: string; tagId: string };
 export type GalleryItem = {
   filename: string;
